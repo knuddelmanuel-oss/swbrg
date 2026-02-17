@@ -1,0 +1,242 @@
+# -*- coding: utf-8 -*-
+
+import tkinter as tk
+from tkinter import ttk, messagebox, colorchooser
+import random
+from PIL import Image, ImageDraw, ImageFont, ImageTk
+import os
+import textwrap
+import time
+import json
+import requests
+import io
+from moviepy.editor import VideoFileClip, TextClip, CompositeVideoClip, AudioFileClip
+
+# --- KONFIGURATION ---
+BASE_DIR = os.path.join(os.path.expanduser("~/Desktop"), "Content_Creator_Files")
+FINAL_IMAGE_DIR = os.path.join(os.path.expanduser("~/Desktop"), "Content_Bilder")
+VIDEO_OUTPUT_DIR = os.path.join(os.path.expanduser("~/Desktop"), "Content_Videos")
+USED_TEXTS_FILE = os.path.join(BASE_DIR, "used_texts.json")
+
+PEXELS_API_KEY = "sfzm0jzLWfmJgMxok1ot0DFC3C1nGtkJ29BR7REmNVsgkDbDVIGzlkuc"
+PEXELS_VIDEO_URL = "https://api.pexels.com/videos/search?query=nature&orientation=portrait&per_page=80"
+FREE_MUSIC_URL = "https://assets.mixkit.co/music/preview/mixkit-relaxing-calm-piano-1123.mp3"
+
+CATEGORIES_TO_FILES = {
+    "Weisheiten für's Herz": "weisheiten.txt",
+    "Geschichten": "geschichten.txt",
+    "Narzissmus": "narzissmus.txt",
+    "Dein Sternzeichen": "sternzeichen.txt",
+    "Krasser Strass": "frech.txt",
+    "Miststück aus Prinzip": "frech.txt",
+    "Zieh ab, Arschloch": "frech.txt",
+    "Süße Sprüche": "Liebessprueche.txt"
+}
+
+FONT_MAP = {
+    "Helvetica": "/System/Library/Fonts/Helvetica.ttc",
+    "Script": "/System/Library/Fonts/Supplemental/SnellRoundhand.ttc"
+}
+
+COLOR_CONFIG = {
+    "Krasser Strass": {"bg": "#FF8C00", "font": "Helvetica", "text_color": "white"},
+    "Miststück aus Prinzip": {"bg": "#F4A460", "font": "Helvetica", "text_color": "black"},
+    "Zieh ab, Arschloch": {"bg": "#FF69B4", "font": "Helvetica", "text_color": "white"},
+    "Weisheiten für's Herz": {"bg": "#FAFAD2", "font": "Helvetica", "text_color": "black"},
+    "Narzissmus": {"bg": "#2E8B57", "font": "Helvetica", "text_color": "white"},
+    "Dein Sternzeichen": {"bg": "#000000", "font": "Helvetica", "text_color": "white"},
+    "Süße Sprüche": {"bg": "#000000", "font": "Helvetica", "text_color": "white"},
+    "default": {"bg": "#1E1E1E", "font": "Helvetica", "text_color": "white"}
+}
+
+IMAGE_SIZE = (1080, 1080)
+USED_TEXTS = {}
+CONTENT_LIBRARY = {}
+
+def get_font(font_name, size):
+    path = FONT_MAP.get(font_name, FONT_MAP["Helvetica"])
+    try:
+        return ImageFont.truetype(path, size=size)
+    except IOError:
+        return ImageFont.load_default()
+
+def load_used_texts():
+    global USED_TEXTS
+    if os.path.exists(USED_TEXTS_FILE):
+        with open(USED_TEXTS_FILE, 'r', encoding='utf-8') as f:
+            try:
+                USED_TEXTS = json.load(f)
+            except json.JSONDecodeError:
+                USED_TEXTS = {} # Start fresh if file is corrupt
+    else:
+        USED_TEXTS = {}
+
+def save_used_texts():
+    with open(USED_TEXTS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(USED_TEXTS, f, indent=4)
+
+def setup_directories_and_load_texts():
+    os.makedirs(BASE_DIR, exist_ok=True)
+    os.makedirs(FINAL_IMAGE_DIR, exist_ok=True)
+    os.makedirs(VIDEO_OUTPUT_DIR, exist_ok=True)
+
+    for cat in CATEGORIES_TO_FILES.keys():
+        folder = cat.lower().replace(" ", "_").replace("'", "") + "_backgrounds"
+        os.makedirs(os.path.join(BASE_DIR, folder), exist_ok=True)
+
+    for category, filename in CATEGORIES_TO_FILES.items():
+        path = os.path.join(BASE_DIR, filename)
+        if not os.path.exists(path):
+            open(path, 'a', encoding='utf-8').close()
+        with open(path, 'r', encoding='utf-8') as f:
+            # Use dict.fromkeys to preserve order while removing duplicates
+            CONTENT_LIBRARY[filename] = list(dict.fromkeys([line.strip() for line in f if line.strip()]))
+
+def get_random_text(category):
+    filename = CATEGORIES_TO_FILES[category]
+    texts = CONTENT_LIBRARY.get(filename, [])
+    if not texts: return "Kein Text in dieser Kategorie verfügbar."
+    
+    now = time.time()
+    available_texts = [t for t in texts if (now - USED_TEXTS.get(t, 0)) > 28 * 24 * 3600]
+
+    if not available_texts:
+        # If all texts were used recently, reset the oldest one
+        if USED_TEXTS:
+            oldest_text = min(USED_TEXTS, key=USED_TEXTS.get)
+            available_texts.append(oldest_text)
+            
+    if not available_texts: # Fallback if everything fails
+        return random.choice(texts)
+
+    chosen_text = random.choice(available_texts)
+    USED_TEXTS[chosen_text] = now
+    save_used_texts()
+    return chosen_text
+
+class ContentCreatorApp:
+    def __init__(self, root):
+        load_used_texts()
+        setup_directories_and_load_texts()
+
+        self.root = root
+        self.root.title("Content Creator Komplett")
+        self.root.geometry("1300x850")
+        self.root.configure(bg="#1E1E1E")
+        self.build_ui()
+
+    def build_ui(self):
+        style = ttk.Style()
+        style.theme_use('clam') # 'clam' or 'alt' often look better than 'default'
+        style.configure("TLabel", background="#1E1E1E", foreground="white", font=("Helvetica", 12))
+        style.configure("TButton", background="#444", foreground="white", font=("Helvetica", 11), padding=10)
+        style.map("TButton", background=[('active', '#666')])
+
+        left = ttk.Frame(self.root, width=450, style="TFrame")
+        left.pack(side="left", fill="y", padx=10, pady=10)
+        left.pack_propagate(False)
+
+        ttk.Label(left, text="Aktionen:", font=("Helvetica", 14, "bold")).pack(pady=5, anchor='w')
+        ttk.Button(left, text="🖼️ Bild generieren", command=self.generate_image).pack(fill="x", pady=5)
+        ttk.Button(left, text="🎥 Video generieren", command=self.generate_video).pack(fill="x", pady=5)
+
+    def generate_image(self):
+        category = random.choice(list(CATEGORIES_TO_FILES.keys()))
+        text = get_random_text(category)
+        config = COLOR_CONFIG.get(category, COLOR_CONFIG["default"])
+
+        img = Image.new("RGB", IMAGE_SIZE, config["bg"])
+        draw = ImageDraw.Draw(img)
+        font = get_font(config["font"], 70)
+
+        lines = textwrap.wrap(text, width=25)
+        
+        # Calculate total text block height for vertical centering
+        line_heights = [font.getbbox(line)[3] - font.getbbox(line)[1] for line in lines]
+        total_height = sum(line_heights) + (len(lines) - 1) * 20
+        y = (IMAGE_SIZE[1] - total_height) // 2
+
+        for i, line in enumerate(lines):
+            w = draw.textlength(line, font=font)
+            x = (IMAGE_SIZE[0] - w) // 2
+            draw.text((x, y), line, font=font, fill=config["text_color"], stroke_width=1, stroke_fill='black')
+            y += line_heights[i] + 20
+
+        # Unterschrift
+        sig_font = get_font("Script", 50)
+        sig_text = "Isaak Öztürk"
+        sig_w = draw.textlength(sig_text, font=sig_font)
+        draw.text(((IMAGE_SIZE[0]-sig_w)//2, y + 20), sig_text, font=sig_font, fill=config["text_color"])
+
+        filename = f"Bild_{random.randint(1000,9999)}.png"
+        path = os.path.join(FINAL_IMAGE_DIR, filename)
+        img.save(path)
+
+        messagebox.showinfo("Bild erstellt", f"Bild gespeichert:\n{path}")
+
+    def download_pexels_video(self):
+        headers = {"Authorization": PEXELS_API_KEY}
+        response = requests.get(PEXELS_VIDEO_URL, headers=headers)
+        response.raise_for_status()
+        data = response.json()
+        video_info = random.choice(data['videos'])
+        # Find a suitable video file link
+        video_url = next((f['link'] for f in video_info['video_files'] if f.get('height') == 1920), video_info['video_files'][0]['link'])
+        return requests.get(video_url).content
+
+    def generate_video(self):
+        temp_video_path = "temp_video.mp4"
+        temp_music_path = "temp_music.mp3"
+        final_clip = None
+
+        try:
+            video_bytes = self.download_pexels_video()
+            music_response = requests.get(FREE_MUSIC_URL)
+            music_response.raise_for_status()
+            music_bytes = music_response.content
+            
+            text = get_random_text("Süße Sprüche")
+
+            with open(temp_video_path, "wb") as f: f.write(video_bytes)
+            with open(temp_music_path, "wb") as f: f.write(music_bytes)
+            
+            clip = VideoFileClip(temp_video_path).subclip(0, 15)
+            
+            # Ensure clip is in 1080x1920 format
+            if clip.size != [1080, 1920]:
+                clip = clip.resize(height=1920)
+                if clip.w > 1080:
+                    clip = clip.crop(x_center=clip.w/2, width=1080)
+
+            txt_clip = TextClip(
+                f"{text}\n\nIsaak Öztürk",
+                fontsize=70, color='white', font='Helvetica-Bold',
+                method='caption', size=(clip.w * 0.9, None),
+                stroke_color='black', stroke_width=2
+            )
+            txt_clip = txt_clip.set_position(('center', 'center')).set_duration(clip.duration)
+
+            final_clip = CompositeVideoClip([clip, txt_clip])
+            audio_clip = AudioFileClip(temp_music_path).subclip(0, clip.duration)
+            final_clip = final_clip.set_audio(audio_clip)
+
+            output_path = os.path.join(VIDEO_OUTPUT_DIR, f"Video_{random.randint(1000,9999)}.mp4")
+            final_clip.write_videofile(output_path, fps=24, codec="libx264", audio_codec="aac")
+
+            messagebox.showinfo("Fertig", f"Video gespeichert:\n{output_path}")
+
+        except Exception as e:
+            messagebox.showerror("Fehler", f"Ein Fehler ist aufgetreten:\n{e}")
+            
+        finally:
+            if final_clip:
+                final_clip.close() # This also closes audio and video source clips
+            if os.path.exists(temp_video_path):
+                os.remove(temp_video_path)
+            if os.path.exists(temp_music_path):
+                os.remove(temp_music_path)
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    app = ContentCreatorApp(root)
+    root.mainloop()

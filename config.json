@@ -1,0 +1,72 @@
+{
+  "DIR_NAMES": {
+    "BASE_DIR": "Content_Creator_Files",
+    "FINAL_IMAGE_DIR": "Content",
+    "FONTS_DIR": "fonts"
+  },
+  "SETTINGS": {
+    "SIMILARITY_THRESHOLD": 0.35,
+    "LOCK_DURATION_DAYS": 28,
+    "IMAGE_SIZE": [1179, 1475]
+  },
+  "CATEGORIES_TO_FILES": {
+    "Süße Sprüche": "Liebessprueche.txt",
+    "Narzissmus": "narzissmus.txt",
+    "Krasser Strass": "frech.txt",
+    "Miststück aus Prinzip": "frech.txt",
+    "Zieh ab, Arschloch": "frech.txt",
+    "Dein Sternzeichen": "sternzeichen.txt",
+    "Geschichten": "geschichten.txt",
+    "Umfragen": "umfragen.txt"
+  },
+  "FONT_CONFIG": {
+    "MAP": {
+      "Standard (Helvetica)": "Helvetica.ttc",
+      "Impact": "Impact.ttf",
+      "Handschrift (Noteworthy)": "Noteworthy.ttc",
+      "Dünn (Avenir Next)": "Avenir Next Condensed.ttc"
+    },
+    "NAME_MAP": {
+      "Helvetica": "Standard (Helvetica)",
+      "Impact": "Impact",
+      "Script": "Handschrift (Noteworthy)",
+      "ThinFont": "Dünn (Avenir Next)"
+    }
+  },
+  "KEYWORD_CATEGORIES": {
+    "Süße Sprüche": { "liebe": 10, "herz": 10, "schatz": 9, "kuss": 8, "vermissen": 8, "wunderschön": 7, "gefühle": 7, "beziehung": 6, "zusammen": 6, "lächeln": 6, "glücklich": 5, "gedanken": 4 },
+    "Narzissmus": { "narzisst": 10, "narzissmus": 10, "toxisch": 9, "manipulation": 8, "gaslighting": 8, "respektlos": 7, "lügner": 7, "ignorieren": 6, "ex": 6, "spielchen": 5, "stärke": 4, "wert": 3, "nie": 2, "ich": 1, "du": 1 },
+    "Krasser Strass": { "boss": 8, "bitch": 8, "prinzessin": 7, "zicke": 7, "frech": 6, "mein leben": 5, "meine regeln": 5, "scheiß": 4, "egal": 4 },
+    "Miststück aus Prinzip": { "miststück": 10, "prinzessin": 7, "zicke": 7, "arschloch": 6, "charakter": 5, "meinung": 4 },
+    "Zieh ab, Arschloch": { "arschloch": 10, "zieh ab": 10, "verpiss dich": 9, "hurensohn": 8, "nerv nicht": 7, "fick dich": 7, "depp": 8, "eingebildet": 7, "ex freund": 6, "ex freundin": 6, "streit": 5, "existenz": 4, "zicke": 4, "schätzchen": 3, "stark": 2, "frau": 1, "polizei": 1, "zukunft": 1, "menschenverstand": 1 },
+    "Dein Sternzeichen": { "widder": 10, "stier": 10, "zwillinge": 10, "krebs": 10, "löwe": 10, "jungfrau": 10, "waage": 10, "skorpion": 10, "schütze": 10, "steinbock": 10, "wassermann": 10, "fische": 10 }
+  },
+  "REPHRASE_MAP": {
+    "liebe": ["zuneigung", "leidenschaft", "hingabe"], "herz": ["seele", "innerstes"], "glücklich": ["froh", "zufrieden", "erfüllt"], "leben": ["existenz", "dasein"], "stark": ["kräftig", "unbeugsam", "resilient"], "immer": ["stets", "jederzeit", "ewig"], "manchmal": ["ab und zu", "zuweilen", "gelegentlich"], "freunde": ["wegbegleiter", "vertraute"], "du": ["man", "jeder von uns"], "ich": ["man selbst", "eine person"]
+  },
+  "HASHTAG_MAP": {
+    "Süße Sprüche": ["#liebe", "#liebessprüche", "#beziehung", "#fürdich", "#herzmensch", "#gefühle"],
+    "Narzissmus": ["#narzissmus", "#toxischebeziehung", "#selbstliebe", "#stärke", "#narzisst", "#redflags"],
+    "Krasser Strass": ["#bossbabe", "#selbstbewusst", "#frechesprüche", "#ironie", "#meinleben", "#sprüche"],
+    "Miststück aus Prinzip": ["#zicke", "#selbstironie", "#starkefrauen", "#meinung", "#ironiepur"],
+    "Zieh ab, Arschloch": ["#schlussmachen", "#neuanfang", "#liebeskummer", "#wut", "#ex"],
+    "Dein Sternzeichen": ["#sternzeichen", "#horoskop", "#astrologie", "#zodiac"],
+    "default": ["#sprüchezumnachdenken", "#spruchdestages", "#motivation", "#zitateundsprüche", "#gedanken"]
+  },
+  "COMMENT_MAP": {
+    "Süße Sprüche": ["Markiere deinen Schatz! ❤️", "Wem würdest du das sagen? 🥰", "So wahre Worte... 🥺"],
+    "Narzissmus": ["Wer kennt's? Lass ein 'Ich' in den Kommentaren, wenn du das fühlst. 👇", "Du bist nicht allein. 🙏", "Zeit, die Krone zu richten und weiterzugehen. 👑"],
+    "default": ["Stimmst du zu? 🤔", "Was ist deine Meinung dazu?", "Lass ein ❤️ da, wenn du das auch so siehst!"]
+  },
+  "COLOR_CONFIG": {
+    "Krasser Strass": {"bg": "#FF8C00", "font": "ThinFont", "text_color": "white"},
+    "Miststück aus Prinzip": {"bg": "#F4A460", "font": "ThinFont", "text_color": "black"},
+    "Zieh ab, Arschloch": {"bg": "#FF69B4", "font": "ThinFont", "text_color": "white"},
+    "Umfragen": {"bg": "#FAFAD2", "font": "Helvetica", "text_color": "white"},
+    "Narzissmus": {"bg": "#2E8B57", "font": "Helvetica", "text_color": "black"},
+    "Dein Sternzeichen": {"bg": "#000000", "font": "ThinFont", "text_color": "white"},
+    "Süße Sprüche": {"bg": "#000000", "font": "Helvetica", "text_color": "white"},
+    "default": {"bg": "#1E1E1E", "font": "Helvetica", "text_color": "white"}
+  },
+  "ZODIAC_SIGNS": ["Widder", "Stier", "Zwillinge", "Krebs", "Löwe", "Jungfrau", "Waage", "Skorpion", "Schütze", "Steinbock", "Wassermann", "Fische"]
+}
